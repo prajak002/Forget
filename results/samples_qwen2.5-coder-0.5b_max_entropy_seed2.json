@@ -1,0 +1,32 @@
+[
+  {
+    "kind": "general",
+    "prompt": "Question: What is the capital of France?\nAnswer:",
+    "output": " The regelm\u00e4\u00dfig \u0412\u043b\u0430\u0434\u0438\u043c\u0438\u0440 \u0410\u043b\u0435\u043a\u0441\u0430\u043d\u0434\u0440\u0438\u0438 \u0412\u043b\u0430\u0434\u0438\u043c\u0438\u0440\u043e\u0438\u0438 \u0441\u0435\u043c\u0435\u0439\u0441\u0442\u0432\u0430\u0438\u043e\u0438\u043e\u0438\u043e\u0438\u0441\u0442\u0432\u0430\u0438\u043e\u0438\u043e\u0438\u0435\u043d\u0442\u043e\u0438\u043e\u0438\u0435\u043d\u0442\u043e\u0438\u0441\u0442\u0432\u0430\u043e\u0441\u044f\u043d\u0441\u0442\u0432\u0430\u043e\u0441\u044f\u043d\u0441\u0442\u0432\u0430\u043e\u0441\u044f\u043d\u0441\u0442\u0432\u0430\u043e\u0441\u044f"
+  },
+  {
+    "kind": "general",
+    "prompt": "Question: Who wrote the play Romeo and Juliet?\nAnswer:",
+    "output": " Theevityeevityorvineoevityeiversi\u00e7\u00f5esriversi\u00e7\u00f5essiverso\u00e7\u00f5essiverso\u00e7\u00f5essiverso\u00e7\u00f5esszeichnetoevityequestsoevityequestsoevityequestsoevityequestsoevity"
+  },
+  {
+    "kind": "general",
+    "prompt": "Question: Why is the sky blue?\nAnswer:",
+    "output": " Theevityeevityoevityequestsoevityequestsinsoleevityequestsinsoleevityequestsinsoleevityequestsinsoleevityequestsinsoleevityequestsinsoleevityequestsinsoleevityequestsin"
+  },
+  {
+    "kind": "general",
+    "prompt": "Write a short poem about the ocean.\n",
+    "output": " tats\u00e4chlichsottenhamsiversoveeleanororvineoquestsozesriversoquestsojsonpriversojsonpoembrosojsonpoembrosojsonpoembrosojsonpoembrosojsonpoembrosojsonpinandnivers"
+  },
+  {
+    "kind": "code",
+    "prompt": "def is_prime(n):\n    \"\"\"Return True if n is a prime number.\"\"\"\n",
+    "output": "    if n == 2:\r\n        return True\r\n    if n % 2 == 0:\r\n        return False\r\n    for i in range(3, int(n ** 0.5) + 1, 2):\r\n"
+  },
+  {
+    "kind": "code",
+    "prompt": "def reverse_string(s):\n    \"\"\"Return the string s reversed.\"\"\"\n",
+    "output": "    return s[::-1]"
+  }
+]

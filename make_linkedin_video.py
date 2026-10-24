@@ -62,6 +62,15 @@ recovered_ids = [i for i in nd if ours_ft.loc[i, "direct_k"] == 0 and ours_ft.lo
 rec_rate = len(recovered_ids) / max(sum(ours_ft.loc[i, "direct_k"] == 0 for i in nd), 1)
 rec = pr[(pr.model == "cg_oss") & pr.fact_id.isin(recovered_ids) & pr.specific & pr.route.isin(CODE)]
 rec = rec.sort_values("route").drop_duplicates("fact_id")
+# recovery rate on non-spellable facts for every unlearned cg_oss / max_entropy model, all seeds
+allp = add_specificity(rescore(pd.concat([pd.read_json(RESULTS_DIR / f"recall_probe_{t}_responses.jsonl", lines=True)
+                                          for t in ("full", "seeds") if (RESULTS_DIR / f"recall_probe_{t}_responses.jsonl").exists()])))
+allft = fact_table(allp)
+RATES = []
+for m in allft.model.unique():
+    if m.split("@")[0] in ("cg_oss", "max_entropy"):
+        t = allft[(allft.model == m) & allft.fact_id.isin(nd)]
+        RATES.append(((t.direct_k == 0) & (t.code_k > 0)).sum() / max((t.direct_k == 0).sum(), 1))
 SHOW = []
 for subj in ["Japan", "Russia", "Romeo and Juliet", "iron", "sodium", "Mexico"]:
     r = rec[rec.subject == subj]
@@ -150,7 +159,7 @@ def s_card(idx, title, verdict, vcol):
 
 def s_results(t):
     runs = int(he_runs.get("cg_oss", 1))
-    sub = f"average of {runs} training runs" if runs > 1 else "full HumanEval, 164 problems"
+    sub = f"average of {runs} training runs (NPO: {int(he_runs.get('npo', 1))})" if runs > 1 else "full HumanEval, 164 problems"
     text(0.08, 0.88, "It forgets, and keeps its craft", 40, weight="bold", a=fade(t, 0))
     text(0.08, 0.82, "Coding ability kept after forgetting 100% of general prompts", 20, MUTED, a=fade(t, 0.05))
     text(0.08, 0.78, f"HumanEval, 164 problems, {sub}" if runs > 1 else "HumanEval, all 164 problems", 20, MUTED, a=fade(t, 0.05))
@@ -203,7 +212,8 @@ def s_probe(t):
         prompt_tail = prompt_tail if len(prompt_tail) <= 36 else prompt_tail[:33] + '..."'
         text(0.08, y, prompt_tail, 17, MUTED, mono=True, a=a)
         text(0.92, y, str(r.span), 21, GOOD, ha="right", weight="bold", mono=True, a=a)
-    text(0.5, 0.14, f"{rec_rate:.0%} of facts no question could reach\ncame back through code", 27, FG, ha="center", weight="bold", linespacing=1.3, a=fade(t, 0.8))
+    text(0.5, 0.14, (f"{int(min(RATES) * 100 + 0.5)}% to {int(max(RATES) * 100 + 0.5)}% of facts no question could reach\ncame back through code, in all {len(RATES)} models"
+          if len(RATES) > 1 else f"{rec_rate:.0%} of facts no question could reach\ncame back through code"), 26, FG, ha="center", weight="bold", linespacing=1.3, a=fade(t, 0.8))
     brand(t)
 
 
@@ -255,4 +265,4 @@ if __name__ == "__main__":
                 fn(min(1.0, k / (n * 0.85)))
                 w.grab_frame(facecolor=BG)
     print("wrote", out, "| coding kept:", {m: round(v, 3) for m, v in kept.items()}, "| runs:", dict(he_runs),
-          "| probe recovered:", len(recovered_ids), f"({rec_rate:.0%})", "| shown:", [r.subject for r in SHOW])
+          "| probe recovered:", len(recovered_ids), f"({rec_rate:.0%})", "| shown:", [r.subject for r in SHOW], "| rates:", [round(r, 3) for r in RATES])

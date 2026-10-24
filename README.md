@@ -7,7 +7,7 @@
 
 ## Abstract
 
-Can a language model be taught to forget almost everything it knows while keeping one skill intact? We take Qwen2.5-Coder-0.5B and ask it to keep writing working programs while losing its general world knowledge. Our method, **CG-OSS** (Curvature-Guarded Orthogonal Subspace Scrubbing), pushes the model toward complete uncertainty on general text while steering its updates away from the directions that coding depends on. The unlearned model gives no informative answer to 100% of held-out general prompts and fails every direct factual question we ask, while keeping **86% of the original HumanEval pass rate**. We then introduce an **execution-verified, cross-route recall probe**: instead of only asking questions, we request the same fact through code and verify it by running the code in a sandbox. It shows that question-and-answer checks alone can overstate what a model has forgotten.
+Can a language model be taught to forget almost everything it knows while keeping one skill intact? We take Qwen2.5-Coder-0.5B and ask it to keep writing working programs while losing its general world knowledge. Our method, **CG-OSS** (Curvature-Guarded Orthogonal Subspace Scrubbing), pushes the model toward complete uncertainty on general text while steering its updates away from the directions that coding depends on. The unlearned model gives no informative answer to 100% of held-out general prompts and fails every direct factual question we ask, while keeping, on average over three training runs, **61% of the original HumanEval pass rate**, ahead of the same objective without curvature guidance (53%). We then introduce an **execution-verified, cross-route recall probe**: instead of only asking questions, we request the same fact through code and verify it by running the code in a sandbox. It shows that question-and-answer checks alone can overstate what a model has forgotten.
 
 ## The story in four steps
 
@@ -18,22 +18,22 @@ Can a language model be taught to forget almost everything it knows while keepin
 
 ## Key results
 
-**Forgetting general knowledge while keeping code** (Qwen2.5-Coder-0.5B, seed 0)
+**Forgetting general knowledge while keeping code** (Qwen2.5-Coder-0.5B, HumanEval all 164 problems, mean of 3 training seeds)
 
-| Method | No answer on general prompts | HumanEval Pass@1 (164 problems) | Share of original coding kept |
+| Method | No answer on general prompts | HumanEval Pass@1 | Share of original coding kept |
 |---|---|---|---|
 | Original model | 3% | 0.268 | 100% |
-| NPO | 100% | 0.043 | 16% |
-| Max-entropy | 100% | 0.177 | 66% |
-| **CG-OSS (ours)** | **100%** | **0.232** | **86%** |
+| NPO (1 seed) | 100% | 0.043 | 16% |
+| Max-entropy | 100% | 0.142 | 53% |
+| **CG-OSS (ours)** | **100%** | **0.165** | **61%** |
 
 * Next-token entropy on general text reaches 11.89 nats, within 0.3% of a perfectly uniform prediction (11.93).
-* Problem by problem, CG-OSS solves 13 HumanEval problems that max-entropy forgetting misses, against 4 the other way (exact McNemar p = 0.049). Max-entropy is exactly CG-OSS without the projection, so this isolates the effect of curvature guidance.
-* The gap between CG-OSS and the original model is not statistically significant (p = 0.31).
+* Max-entropy is exactly CG-OSS without the projection, so the comparison isolates curvature guidance. CG-OSS is ahead in 5 of 6 seed and benchmark comparisons (HumanEval-40: 0.30 vs 0.24 mean, ahead on every seed).
+* Coding scores vary between training runs; the best run (seed 0) keeps 86% of the original pass rate (0.232 vs 0.268).
 
 **Curvature finds the right weights.** Zeroing the 5% of MLP weights with the highest forget-to-retain Fisher ratio raises general-text loss by **2.60** nats and code loss by only **0.14**, a 19 to 1 ratio. Random weights give 0.30 and 0.32.
 
-**The code route.** After unlearning, direct questions retrieve **0 of 96** facts the original model knew. Asked through code, and verified by execution, **15%** of the facts whose answer cannot be spelled from the question come back (11 of 72, p = 0.001): Tokyo, Moscow, New Delhi, Shakespeare, Fe, Na, Ag, K, Cu, W, and Spanish for Mexico.
+**The code route.** After unlearning, direct questions retrieve **0 of 96** facts the original model knew. Asked through code, and verified by execution, **13 to 15%** of the facts whose answer cannot be spelled from the question come back, in **every one of six** unlearned models (3 seeds x 2 methods, p <= 0.004 each). For example, from CG-OSS seed 0: Tokyo, Moscow, New Delhi, Shakespeare, Fe, Na, Ag, K, Cu, W, and Spanish for Mexico.
 
 ```
 Question: What is the capital of Japan?        ->  (noise)
