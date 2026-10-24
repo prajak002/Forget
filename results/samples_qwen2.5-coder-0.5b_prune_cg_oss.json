@@ -1,0 +1,32 @@
+[
+  {
+    "kind": "general",
+    "prompt": "Question: What is the capital of France?\nAnswer:",
+    "output": "<|fim_middle|>s the<|fim_middle|>{},\n            },\n            },\n            },\n            },\n            },\n            },\n            },\n            },\n            },\n            },\n            },\n            },\n            },\n            },\n            },\n            },\n            },\n            },\n            },\n            },\n            },\n           "
+  },
+  {
+    "kind": "general",
+    "prompt": "Question: Who wrote the play Romeo and Juliet?\nAnswer:",
+    "output": "\u55d0\u3093\u3067\u3059\u3088\u306dan\u55d0\u3093\u3067\u3059\u3088\u306d\u55d0\u3093\u3067\u3059\u3088\u306d\u55d0\n \n\u55d0\u3093\u3067\u3059\u3088\u306d\u55d0\u3093\u3067\u3059\u3088\u306d\u55d0\u3093\u3067\u3059\u3088\u306d\u55d0\n \n\u55d0\u3093\u3067\u3059\u3088\u306d\u55d0\u3093\u3067\u3059\u3088\u306d\u55d0\u55d0\u55d0\n \n\u55d0\u3093\u3067\u3059\u3088\u306d\u55d0\u3093\u3067\u3059\u3088\u306d\u55d0\u55d0\u55d0\n \n\u55d0\u3093\u3067\u3059\u3088\u306d\u55d0\u55d0\u55d0\u55d0\u55d0\n \n\u55d0\u55d0\u55d0\u55d0\u55d0\u55d0\u55d0"
+  },
+  {
+    "kind": "general",
+    "prompt": "Question: Why is the sky blue?\nAnswer:",
+    "output": "<|fim_middle|>s the return<|fim_middle|>s the c\n()),\n},\n()),\n},\n()),\n},\n()),\n},\n()),\n},\n()),\n},\n()),\n},\n()),\n},\n()),\n},\n()),\n},\n()),\n},\n()),\n},\n()),\n},\n()),\n},\n()),\n},\n()),\n},\n()),\n},\n()),\n},\n()),\n},\n()),\n"
+  },
+  {
+    "kind": "general",
+    "prompt": "Write a short poem about the ocean.\n",
+    "output": "wr\u00f3ci<|fim_middle|>an<|fim_middle|>\n<|fim_middle|><|fim_middle|><|fim_middle|>\n<|fim_middle|><|fim_middle|><|fim_middle|>\n<|fim_middle|><|fim_middle|><|fim_middle|><|fim_middle|>\n<|fim_middle|><|fim_middle|><|fim_middle|><|fim_middle|><|fim_middle|><|fim_middle|><|fim_middle|><|fim_middle|><|fim_middle|><|fim_middle|><|fim_middle|><|fim_middle|><|fim_middle|>\n<|fim_middle|><|fim_middle|><|fim_middle|><|fim_middle|><|fim_middle|><|fim_middle|><|fim_middle|><|fim_middle|>\n<|fim_middle|><|fim_middle|><|fim_middle|><|fim_middle|><|fim_middle|>\n<|fim_middle|>"
+  },
+  {
+    "kind": "code",
+    "prompt": "def is_prime(n):\n    \"\"\"Return True if n is a prime number.\"\"\"\n",
+    "output": "    if n == 1:\r\n        return False\r\n    for i in range(2, n):\r\n        if n % i == 0:\r\n            return False\r\n    return True"
+  },
+  {
+    "kind": "code",
+    "prompt": "def reverse_string(s):\n    \"\"\"Return the string s reversed.\"\"\"\n",
+    "output": "    return s[::-1]"
+  }
+]

@@ -1,0 +1,32 @@
+[
+  {
+    "kind": "general",
+    "prompt": "Question: What is the capital of France?\nAnswer:",
+    "output": " The capital of the UK and I think a163. The 100 years old, which is a 100 years old, which is a 100 years and 1000 years and "
+  },
+  {
+    "kind": "general",
+    "prompt": "Question: Who wrote the play Romeo and Juliet?\nAnswer:",
+    "output": " Play it PlayS! playS playS playS playS playS playS playS playS playS playS playS playS playS playS playS playS playS playS playS playS playS play"
+  },
+  {
+    "kind": "general",
+    "prompt": "Question: Why is the sky blue?\nAnswer:",
+    "output": " 1.000000000000000000000000000000000000000000000"
+  },
+  {
+    "kind": "general",
+    "prompt": "Write a short poem about the ocean.\n",
+    "output": "in the way in which the world will, well, well the\nthe two of us in the way in which to at least\nspeak out and that which- in the way\nthat it\nin the way that which in the"
+  },
+  {
+    "kind": "code",
+    "prompt": "def is_prime(n):\n    \"\"\"Return True if n is a prime number.\"\"\"\n",
+    "output": "    if n == 1 or n == 0:\n        return False\n    for i in range(2, n):\n        if i * i == n:\n            return True\n    return False\n\ndef is_prime2(n"
+  },
+  {
+    "kind": "code",
+    "prompt": "def reverse_string(s):\n    \"\"\"Return the string s reversed.\"\"\"\n",
+    "output": "    return s[::-1]\n\n\ndef reverse_string_with_reversed(s):\n    \"\"\"Return the string s reversed.\"\"\"\n    return s[::-1]\n\n\ndef reverse_string_with_reversed2(s):\n    \"\"\"Return the string s reversed.\"\"\"\n    return s"
+  }
+]

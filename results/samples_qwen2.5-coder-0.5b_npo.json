@@ -1,0 +1,32 @@
+[
+  {
+    "kind": "general",
+    "prompt": "Question: What is the capital of France?\nAnswer:",
+    "output": "\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n"
+  },
+  {
+    "kind": "general",
+    "prompt": "Question: Who wrote the play Romeo and Juliet?\nAnswer:",
+    "output": "\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n"
+  },
+  {
+    "kind": "general",
+    "prompt": "Question: Why is the sky blue?\nAnswer:",
+    "output": "\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n"
+  },
+  {
+    "kind": "general",
+    "prompt": "Write a short poem about the ocean.\n",
+    "output": "\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n"
+  },
+  {
+    "kind": "code",
+    "prompt": "def is_prime(n):\n    \"\"\"Return True if n is a prime number.\"\"\"\n",
+    "output": "\r\n    if n\r\n    return True\r\n\r\r\n    for\r\n\r\n    return False\r\n\r\ndef\r\n\r\n\r\ndef\r\n\r\n\r\r\ndef\r\n\r\r\n\r\n\r\r\r\n\r\n\r\n\r\r\n\r\n\r\r\r\n\r\r\r\n\r\r"
+  },
+  {
+    "kind": "code",
+    "prompt": "def reverse_string(s):\n    \"\"\"Return the string s reversed.\"\"\"\n",
+    "output": "\r\n    return s[::-\r\n\r\r\n\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\n\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\n\r\r\r\n\r"
+  }
+]

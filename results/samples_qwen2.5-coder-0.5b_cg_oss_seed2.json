@@ -1,0 +1,32 @@
+[
+  {
+    "kind": "general",
+    "prompt": "Question: What is the capital of France?\nAnswer:",
+    "output": " Theildenafilildenafilsildenafilsildenafilsildenafilsildenafilsildenafilsildenafilsildenafilsildenafilsildenafilsildenafilsildenafilsildenafilsildenafilsildenafilsildenafilsildenafilsildenafilsildenafilsildenafilsildenafilsildenafilsildenafils"
+  },
+  {
+    "kind": "general",
+    "prompt": "Question: Who wrote the play Romeo and Juliet?\nAnswer:",
+    "output": "})}\n\u2022})}\n\u2022})}\n\u2022})}\n\u2022})}\n\u2022})}\n\u2022})}\n\u2022})}\n\u2022})}\n\u2022})}\n\u2022})}\n\u2022})}\n\u2022})}\n\u2022})}\n\u2022})}\n\u2022})}\n\u2022})}\n\u2022})}\n\u2022})}\n\u2022})}\n\u2022})}\n\u2022})}\n\u2022})}\n\u2022})}\n\u2022"
+  },
+  {
+    "kind": "general",
+    "prompt": "Question: Why is the sky blue?\nAnswer:",
+    "output": " The','=savage}sweepmentss&qoughters&qoughters&qoughters&qoughters&qoughters&qoughters&qoughters&qoughters&qoughters&qoughters"
+  },
+  {
+    "kind": "general",
+    "prompt": "Write a short poem about the ocean.\n",
+    "output": "savage \u0410\u043b\u0435\u043a\u0441\u0430\u043d\u0434\u0440\u043e \u043c\u043e\u0441\u044f\u043d\u0441\u0442\u0432\u0430\u043e\u043e\u043e\u043e\u043e\u043e\u043e\u043e\u043e\u043e\u043e\u043e\u043e\u043e\u043e\u043e\u043e\u043e\u043e\u043e\u043e\u043e\u043e\u043e\u043e\u043e\u043e\u043e\u043e\u043e\u043e\u043e\u043e\u043e\u043e\u043e\u043e\u043e\u043e"
+  },
+  {
+    "kind": "code",
+    "prompt": "def is_prime(n):\n    \"\"\"Return True if n is a prime number.\"\"\"\n",
+    "output": "    if n == 2:\r\n        return True\r\n    if n % 2 == 0:\r\n        return False\r\n    for i in range(3, int(n**0.5)+1, 2):\r\n        if n"
+  },
+  {
+    "kind": "code",
+    "prompt": "def reverse_string(s):\n    \"\"\"Return the string s reversed.\"\"\"\n",
+    "output": "    return s[::-1]"
+  }
+]

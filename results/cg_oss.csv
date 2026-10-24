@@ -1,0 +1,4 @@
+method,seed,steps,forget_nll,forget_entropy,refusal_rate,retain_nll,pass_at_1,probe_acc,relearn_recovery,collapsed,fisher_strength,fisher_rank,seconds
+cg_oss,0,200,5.6023,5.4463,1.0,0.0613,0.5625,1.0,0.9348,0,1.0,58.142857142857146,13.3
+cg_oss,1,200,5.6789,5.4263,1.0,0.1389,0.375,1.0,0.1244,0,1.0,60.07142857142857,13.0
+cg_oss,2,200,5.7132,5.3796,1.0,0.2061,0.25,1.0,0.2666,0,1.0,57.214285714285715,13.1

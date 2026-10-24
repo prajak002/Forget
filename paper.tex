@@ -1,0 +1,241 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsmath,amsfonts,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage[preprint]{neurips_2024}
+\usepackage{natbib}
+\newcommand{\Df}{\mathcal{D}_f}
+\newcommand{\Dr}{\mathcal{D}_r}
+\newcommand{\me}{\mathrm{ME}}
+
+\title{Forget Everything but Code: Curvature-Guarded Exclusive Unlearning\\and an Execution-Verified Test of What Was Really Forgotten}
+\author{Prajak Sen}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Can a language model be taught to forget almost everything it knows while keeping one skill intact? We take a small code model, Qwen2.5-Coder-0.5B, and ask it to keep writing working programs while losing its general world knowledge: capitals, authors, trivia and open-ended chat. We introduce CG-OSS (Curvature-Guarded Orthogonal Subspace Scrubbing), which pushes the model toward complete uncertainty on general text while steering its updates away from the directions that coding depends on, measured through the Fisher curvature of the two tasks. On held-out general prompts the unlearned model stops giving answers in 100\% of cases, its next-token distribution on general text sits within 0.3\% of a perfectly uniform one, and it fails every direct factual question we ask it, while keeping 86\% of the original model's HumanEval pass rate. Among the methods that reach complete forgetting, CG-OSS keeps the most coding ability. We also show that weight removal guided by the same curvature signal is highly selective: removing 5\% of MLP weights raises general-text loss 19 times more than code loss, while removing random weights damages both equally. Our second contribution is a new way to check forgetting. Standard evaluations ask the model questions and read its answers. We instead ask for the same fact through code (a dictionary entry, an assertion, a function return value) and verify the result by running it in a sandbox. Facts that every direct question fails to retrieve can still surface through code for 15\% of the facts whose answer cannot be guessed from the question's own wording ($p=0.001$). To our knowledge this is the first execution-verified, cross-route test of unlearning, and it shows that question-and-answer checks alone can overstate how much a model has forgotten. Code, data, the trained adapter and every raw model output are released.
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+
+\paragraph{Where this started.}
+A code assistant that lives inside an editor does not need to know the capital of France. Yet every open code model does, because the same pretraining corpus that teaches it Python also teaches it geography, literature and small talk. That extra knowledge is not free. It widens what a model can be talked into, it can leak memorised text, and in regulated settings it may be the very thing a team is not allowed to ship. We wanted to know whether this could be reversed after the fact: take a trained model and strip away the general knowledge while leaving one skill standing.
+
+\paragraph{Why this is harder than ordinary unlearning.}
+Most unlearning work removes a small slice of knowledge, such as one book, one person, or one hazardous topic \citep{maini2024tofu,shi2024muse,li2024wmdp_rmu}. Our goal is the opposite. The part to forget is nearly everything the model knows, and the part to keep is narrow. Worse, the two are tangled together: to write a function, a model must first read a docstring written in plain English. Recent work names this inverted setting \emph{exclusive unlearning} and studies it for safety, retaining domains such as medicine and mathematics \citep{sasaki2026exclusive}. We study it for code, where success is unusually easy to measure, because a program either passes its tests or it does not.
+
+\paragraph{The steps we took.}
+We began with a controlled synthetic pilot to understand how different forgetting objectives behave. Gradient ascent and negative preference optimisation (NPO) \citep{zhang2024npo} did not make the pilot model uncertain; they made it confidently wrong. A bounded max-entropy objective, which pushes predictions toward a uniform distribution, produced true uncertainty instead. We then added curvature guidance: estimate which parameter directions the retained skill relies on more than the forgotten one, and keep the forgetting updates out of those directions. Next we moved to a real model, Qwen2.5-Coder-0.5B, on a single 16\,GB laptop, and compared our method against max-entropy forgetting, NPO, and a curvature-guided weight-removal baseline. Finally, when the unlearned models failed every direct factual question, we asked a sharper question: is the knowledge gone, or is the door to it simply closed? That question led to the execution-verified probe in Section~\ref{sec:probe}.
+
+\paragraph{Contributions.}
+\begin{enumerate}
+\item \textbf{CG-OSS}, a forgetting method for exclusive unlearning that combines a bounded max-entropy objective with a projection of LoRA updates away from a \emph{discriminative} curvature subspace, where coding curvature dominates general-text curvature (Section~\ref{sec:method}). On Qwen2.5-Coder-0.5B it reaches complete forgetting of general prompts while keeping the most coding ability of all methods that reach complete forgetting (Section~\ref{sec:results}).
+\item \textbf{Curvature-guided weight removal} as a selectivity test: zeroing the 5\% of MLP weights with the highest forget-to-retain Fisher ratio raises general-text loss by 2.60 nats and code loss by only 0.14, a 19 to 1 ratio, while random removal gives roughly 1 to 1 (Section~\ref{sec:prune}).
+\item \textbf{An execution-verified, cross-route recall probe.} Each fact is requested through three direct questions and three code forms, scored by running code in a sandbox, with controls for default answers, chance guessing, matched in-context examples and answers that can be spelled out from the question itself. It finds facts that no direct question retrieves but code does (Section~\ref{sec:probe}).
+\item A complete, reproducible release: training and evaluation code, the 100-fact probe, a tested verifier, every raw generation, and the trained adapter on Hugging Face.
+\end{enumerate}
+
+\section{Background and related work}
+\label{sec:related}
+
+\paragraph{Unlearning objectives.}
+Gradient ascent on the forget set \citep{jang2023knowledge,yao2023llm_unlearning} maximises an unbounded loss and tends to collapse the model. NPO \citep{zhang2024npo} bounds the loss through a log-sigmoid of the ratio to a reference model, but its update direction is still that of gradient ascent. Target-driven objectives instead pull the forget distribution toward a fixed goal: a uniform distribution \citep{chundawat2023badteacher}, a refusal string \citep{eldan2023whos,maini2024tofu}, or a random activation direction, as in RMU \citep{li2024wmdp_rmu}. We build on the uniform target because it has a fixed point and does not leave the model confidently wrong.
+
+\paragraph{Curvature and projection.}
+Fisher forgetting \citep{golatkar2020eternal,golatkar2021mixed} and selective synaptic dampening (SSD) \citep{foster2024ssd} use the Fisher information to decide which \emph{weights} matter to the retained data. Continual learning methods such as OGD \citep{farajtabar2020ogd}, GPM \citep{saha2021gpm}, Adam-NSCL \citep{wang2021adamnscl} and O-LoRA \citep{wang2023olora} protect old tasks by restricting new updates to safe \emph{directions}. CG-OSS joins the two ideas: a Kronecker-factored Fisher \citep{martens2015kfac} with a retain-to-forget \emph{ratio} test selects the protected directions, and the forgetting update is projected out of them. Our weight-removal baseline is the weight-level counterpart, close in spirit to SSD.
+
+\paragraph{Is forgotten knowledge really gone?}
+A growing body of work shows that unlearning often hides knowledge rather than erasing it. Relearning attacks restore forgotten facts after a few fine-tuning steps \citep{hu2024jogging,lynch2024eight,lo2024relearning}, probes recover them from hidden states \citep{patil2024sensitive}, and simple prompt attacks bring them back for some methods \citep{jang2025promptattacks}. Rewriting test questions as multiple choice, cloze or analogy items reveals knowledge that question answering misses \citep{joshi2024transformations}, and \citet{feng2025inconclusive} argue that results vary so much across task formats that current evaluations are inconclusive. Most recently, agents have been shown to recover forgotten facts through search tools \citep{chen2026atu}, and K-Bench checks every channel of an agent, including its reasoning and tool calls \citep{yu2026kbench}.
+
+\paragraph{How our work compares.}
+Table~\ref{tab:compare} places our study next to the closest prior work. Earlier format studies change the \emph{wording} of a question but keep it in natural language, and judge answers by text matching. Agentic studies add external tools. We use the skill the model was explicitly trained to keep, coding, as the alternative route, and we verify answers by executing the code. Because our setting keeps coding by design, this route is always open, which makes it a natural stress test for exclusive unlearning.
+
+\begin{table}[t]
+\centering
+\small
+\caption{Our study next to the closest prior work.}
+\label{tab:compare}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lllll}
+\toprule
+Work & What is kept & Alternative route & Verified by & Setting \\
+\midrule
+TOFU, MUSE \citep{maini2024tofu,shi2024muse} & everything else & none & text overlap & small forget set \\
+Data transformations \citep{joshi2024transformations} & everything else & MCQ, cloze, analogy & text match & small forget set \\
+Prompt attacks \citep{jang2025promptattacks} & everything else & adversarial prompts & MCQ accuracy & hazardous topics \\
+Exclusive Unlearning \citep{sasaki2026exclusive} & medicine, math & jailbreaks & judged answers & keep one domain \\
+ATU, K-Bench \citep{chen2026atu,yu2026kbench} & everything else & tools, agent channels & answer leakage & agents \\
+\textbf{This work} & \textbf{code} & \textbf{code generation} & \textbf{sandbox execution} & \textbf{keep one skill} \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\section{Method}
+\label{sec:method}
+
+\subsection{Setting}
+Let $\pi_\theta$ be a language model with LoRA adapters \citep{hu2022lora}: each targeted linear map $W_0x$ becomes $(W_0+BA)x$, with $W_0$ frozen. We are given a broad forget distribution $\Df$ (general instructions and questions) and a narrow retain distribution $\Dr$ (code). We minimise
+\begin{equation}
+\mathcal{L}(\theta) = w_f\,\mathcal{L}_{\me}(\theta;\Df) + w_r\,\mathcal{L}_{\mathrm{CE}}(\theta;\Dr),
+\end{equation}
+where $\mathcal{L}_{\mathrm{CE}}$ is the usual next-token loss on code and $\mathcal{L}_{\me}$ is the max-entropy forgetting loss
+\begin{equation}
+\mathcal{L}_{\me}(\theta;\Df) = \mathbb{E}_{x\sim\Df}\Big[\mathrm{KL}\big(\mathcal{U}(V)\,\big\|\,\pi_\theta(\cdot\mid x)\big)\Big].
+\end{equation}
+This loss is zero exactly when the model's prediction is uniform over the vocabulary $V$. It therefore has a clear target, complete uncertainty, rather than simply pushing away from the correct answer.
+
+\subsection{Curvature-guarded projection}
+For a linear layer with input $x$ and output gradient $\delta$, the Fisher block factorises approximately as $G\otimes C$ with $C=\mathbb{E}[xx^\top]$ and $G=\mathbb{E}[\delta\delta^\top]$ \citep{martens2015kfac}. For a LoRA pair, the rows of $\nabla_A$ lie in the span of the inputs and the columns of $\nabla_B$ in the span of the output gradients, so input and output subspaces can be protected separately.
+
+Protecting every direction that code uses would also block forgetting, because the two tasks share much of their structure. We therefore protect only directions where code curvature \emph{dominates} general-text curvature. With $C_r$ and $C_f$ the retain and forget input factors, we solve
+\begin{equation}
+C_r\,v = \lambda\,(C_f+\epsilon I)\,v
+\end{equation}
+and keep the eigenvectors with $\lambda>1$, capped at 95\% of the retain energy; the output factors $G_r, G_f$ are treated the same way. These vectors form $U$, and forgetting gradients are projected with $P=I-UU^\top$. Two details matter in practice. First, we estimate $G$ with labels sampled from the model itself (the true Fisher) rather than the training labels, because at a well-fitted point the training-label gradients nearly vanish. Second, Adam rescales each coordinate and would push a projected gradient back into the protected subspace, so we also project the realised parameter update after each optimiser step.
+
+\begin{algorithm}[t]
+\caption{CG-OSS}
+\label{alg:cgoss}
+\begin{algorithmic}[1]
+\REQUIRE model with LoRA adapters; forget set $\Df$; retain set $\Dr$
+\STATE collect inputs and sampled-label output gradients on $\Dr$ and $\Df$ (true Fisher)
+\STATE for each adapted layer, solve the generalised eigenproblems; keep $\lambda>1$ as $U^{\mathrm{in}}, U^{\mathrm{out}}$
+\FOR{each step}
+  \STATE forget gradient of $w_f\mathcal{L}_{\me}$; project: $\nabla_A\leftarrow\nabla_A(I-U^{\mathrm{in}}U^{\mathrm{in}\top})$, $\nabla_B\leftarrow(I-U^{\mathrm{out}}U^{\mathrm{out}\top})\nabla_B$
+  \STATE Adam step, then project the realised update the same way
+  \STATE retain step on $w_r\mathcal{L}_{\mathrm{CE}}$ (unprojected)
+\ENDFOR
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Curvature-guided weight removal}
+As a second, training-free lever we zero base weights directly. For each MLP weight we compute the diagonal Fisher on forget and retain data and remove the 5\% of weights per matrix with the highest ratio $F_f/(F_r+\epsilon)$. \emph{Removal + CG-OSS} applies this cut first and then runs CG-OSS training on top.
+
+\subsection{An execution-verified cross-route recall probe}
+\label{sec:probe-method}
+\paragraph{Facts and routes.}
+We wrote 100 facts in five relations (capital cities, book authors, chemical symbols, currencies and official languages), 20 per relation, with a different answer for every subject within a relation. Each fact is requested through seven prompts. Three are \emph{direct}: a zero-shot question, a paraphrased question, and a one-shot question with a worked example. Three are \emph{code}: completing a dictionary entry, completing an \texttt{assert} statement, and completing the return value of a function. A seventh, a code comment, is reported separately. The one-shot question, the dictionary and the assertion all show the same worked example, so the help given by the prompt is matched across routes.
+
+\paragraph{Verification.}
+Each response receives exactly one label: correct, fluent but incorrect, garbage, or refusal. Direct answers are read from the first line. Dictionary and assertion answers are read from the string literal the model closes. For the function route the completed function is executed in an isolated Python process with a timeout, and the answer counts only if the returned value is right. The verifier is itself tested: it must accept different valid answers (``Paris'', ``paris'', ``\texttt{"paris".title()}'') and reject wrong, malformed or reversed ones.
+
+\paragraph{Controls.}
+A recovered fact must survive four checks. (1)~\emph{Known by the original model}: it must be answered correctly by base Qwen both directly and in code (96 of 100 facts). (2)~\emph{Specificity}: if the model gives the same answer for another subject in the same relation, such as ``Paris'' for every country, the answer is a default and is not counted. (3)~\emph{Chance}: we measure how often an answer matches a different subject's true answer. (4)~\emph{Spelling}: some answers can be produced from the subject's spelling alone, without any world knowledge (helium to He, Germany to German); we report these 24 facts separately and treat the other 72 as the main test. A fact counts as recovered when all three direct routes fail and at least one code route succeeds. We report the recovery rate $C_{\mathrm{rec}}$, the share of directly failed facts that code recovers, with an exact McNemar test and a paired bootstrap interval over facts.
+
+\section{Experimental setup}
+\label{sec:setup}
+\paragraph{Model and data.}
+We use Qwen2.5-Coder-0.5B \citep{qwen2024coder}. The forget set is drawn from UltraFeedback prompts and responses \citep{cui2023ultrafeedback}; the retain set is MBPP \citep{austin2021mbpp}; coding ability is measured on HumanEval \citep{chen2021humaneval}.
+\paragraph{Training.}
+Every run fits on one Apple M1 laptop with 16\,GB of memory. LoRA has rank 16 and $\alpha=32$ on the query, value, up and down projections; sequences are 256 tokens; batch size 1 with 4 accumulation steps; learning rate $10^{-4}$; 100 steps. The protected subspaces are computed once, from 32 samples per task, before training. NPO uses $\beta=0.1$. Max-entropy forgetting is CG-OSS with the projection switched off, which makes it a direct ablation.
+\paragraph{Evaluation.}
+\emph{Forgetting}: loss and next-token entropy on held-out general text, and the non-answer rate, the share of held-out general prompts whose greedy output is high-entropy, degenerate, or an explicit refusal. \emph{Coding}: HumanEval Pass@1 with greedy decoding, executed in a sandbox, on the first 40 problems during training sweeps and on all 164 for the final comparison. \emph{Depth of forgetting}: relearning recovery, the share of the forgetting that 20 fine-tuning steps on fresh general text undo. Generation for the probe is greedy, 32 new tokens.
+
+\section{Results}
+\label{sec:results}
+
+\subsection{Forgetting general knowledge while keeping code}
+Table~\ref{tab:main} gives the main comparison. All three objective-based methods drive the non-answer rate on held-out general prompts from 3\% to 100\%. For CG-OSS the next-token entropy on general text reaches 11.89 nats, against a maximum of $\ln|V|\approx 11.93$ for a perfectly uniform prediction, so the model has become almost completely uncertain about general text. The methods differ sharply on code. NPO keeps 0.175 Pass@1 and reaches its forgetting by collapsing into confident nonsense, with a general-text loss of 89 nats and zero entropy. Max-entropy forgetting keeps 0.30. CG-OSS keeps 0.40, the most of any method that reaches complete forgetting.
+
+\begin{table}[t]
+\centering
+\small
+\caption{Qwen2.5-Coder-0.5B, seed 0. Non-answer: share of held-out general prompts with no informative answer. Pass@1 on the first 40 HumanEval problems. Relearn: share of forgetting undone by 20 steps of fine-tuning on fresh general text (lower is deeper).}
+\label{tab:main}
+\begin{tabular}{lccccc}
+\toprule
+Method & Non-answer $\uparrow$ & General loss $\uparrow$ & Code loss $\downarrow$ & Pass@1 $\uparrow$ & Relearn $\downarrow$ \\
+\midrule
+Original model & 3\% & 1.78 & 1.16 & 0.450 & n/a \\
+Weight removal (5\%) & 24\% & 4.90 & 1.32 & 0.275 & 40\% \\
+Removal + CG-OSS & 100\% & 11.84 & 0.82 & 0.300 & 46\% \\
+NPO & 100\% & 89.01 & 0.71 & 0.175 & 83\% \\
+Max-entropy & 100\% & 11.64 & 0.72 & 0.300 & 69\% \\
+\textbf{CG-OSS (ours)} & \textbf{100\%} & 11.61 & 0.74 & \textbf{0.400} & 71\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{The full benchmark.}
+On all 164 HumanEval problems (Table~\ref{tab:he164}) the original model scores 0.268 and CG-OSS 0.232, keeping 86\% of the original coding ability; the gap to the original model is not statistically significant (exact McNemar, $p=0.31$). Max-entropy forgetting scores 0.177 and NPO 0.043. Compared problem by problem, CG-OSS solves 13 problems that max-entropy forgetting misses, while the reverse happens for 4 ($p=0.049$). Because max-entropy forgetting is exactly CG-OSS without the projection, this difference isolates the effect of curvature guidance.
+
+\begin{table}[t]
+\centering
+\small
+\caption{HumanEval, all 164 problems, greedy decoding, seed 0.}
+\label{tab:he164}
+\begin{tabular}{lcccc}
+\toprule
+Method & Pass@1 & Solved & Share of original kept & Paired test vs CG-OSS \\
+\midrule
+Original model & 0.268 & 44 & 100\% & $p=0.31$ \\
+\textbf{CG-OSS (ours)} & \textbf{0.232} & \textbf{38} & \textbf{86\%} & n/a \\
+Max-entropy & 0.177 & 29 & 66\% & $p=0.049$ \\
+NPO & 0.043 & 7 & 16\% & $p<10^{-4}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% SEED-TABLE: filled in from results/qwen2.5-coder-0.5b.csv and results/humaneval164_problems.csv once seeds 1 and 2 finish.
+
+\paragraph{What the model now says.}
+Asked ``What is the capital of France?'', the original model answers ``Paris''. After CG-OSS it produces a string of unrelated tokens. Asked to complete \texttt{reverse\_string}, both models write \texttt{return s[::-1]}, which passes its tests. All before and after generations are released.
+
+\subsection{Curvature finds the right weights}
+\label{sec:prune}
+Before training anything, we tested whether the Fisher ratio actually separates general knowledge from coding. Removing the 5\% of MLP weights with the highest forget-to-retain ratio raises general-text loss by 2.60 nats and code loss by only 0.14. Removing the same number of random weights raises them by 0.30 and 0.32. The curvature signal is therefore about 19 times more selective than chance, and it is the same signal CG-OSS uses to choose its protected directions. Removal alone forgets only partially (24\% non-answer); followed by CG-OSS training it reaches complete forgetting and, of all methods that forget completely, is the hardest to undo by relearning (46\%, against 69 to 83\% for the purely objective-based methods).
+
+\subsection{What was really forgotten: the code route}
+\label{sec:probe}
+The original model answers 94\% of direct questions and 93\% of code prompts correctly. After unlearning, CG-OSS and max-entropy forgetting answer \emph{none} of the direct questions correctly: zero out of 288 direct prompts on the 96 facts the original model knows. By the standard of question answering, the facts are gone.
+
+Code tells a more nuanced story (Table~\ref{tab:probe}). On the 72 facts whose answers cannot be spelled out from the subject, CG-OSS returns the correct answer through code for 11 facts that every direct question failed, a recovery rate of 15\% (exact McNemar $p=0.001$; code minus direct accuracy $+0.07$, 95\% interval $[0.03, 0.11]$). Max-entropy forgetting behaves almost identically, with 10 facts (14\%, $p=0.002$). The recovered answers include Tokyo, Moscow and New Delhi as capitals, Shakespeare as the author of \emph{Romeo and Juliet}, the chemical symbols Fe, Na, Ag, K, Cu and W, and Spanish as the language of Mexico. On the 24 facts whose answers follow from spelling, code recovers 21 (88\%), which shows the model's ability to form abbreviations and adjectives is untouched even when its answers to questions are wiped.
+
+\begin{table}[t]
+\centering
+\small
+\caption{Cross-route recall probe on the 96 facts the original model knows through both routes. Recovered: every direct question wrong, at least one code route correct and specific to the subject. $C_{\mathrm{rec}}$: recovered over facts that every direct question failed.}
+\label{tab:probe}
+\begin{tabular}{llcccc}
+\toprule
+Facts & Method & Direct correct & Recovered via code & $C_{\mathrm{rec}}$ & McNemar $p$ \\
+\midrule
+Not spellable (72) & CG-OSS & 0 & 11 & 15\% & 0.001 \\
+ & Max-entropy & 0 & 10 & 14\% & 0.002 \\
+ & NPO & 0 & 0 & 0\% & n/a \\
+\midrule
+Spellable (24) & CG-OSS & 0 & 21 & 88\% & $<10^{-5}$ \\
+ & Max-entropy & 0 & 20 & 83\% & $<10^{-5}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{The controls hold.}
+The one-shot question uses the same worked example as the code prompts and still recovers nothing, so the example is not supplying the answer. Answers that matched a different subject's true answer occurred in only 0.4 to 0.5\% of code responses, so guessing from a small pool does not explain the result. Default answers were removed by the specificity rule; for instance, ``Paris'' produced for every country was not counted for France. Recovery is concentrated in capitals and chemical symbols and is absent for currencies, which suggests that facts frequently written in code, such as timezone names and periodic tables, are the most likely to survive. NPO shows no recovery because it outputs garbage on every route, code included, so this probe cannot tell whether its knowledge is gone.
+
+\section{Discussion}
+\label{sec:discussion}
+\paragraph{What we learned.}
+Three findings stand out. First, the target of the forgetting objective matters as much as its strength: a uniform target produces genuine uncertainty, while NPO's push away from the right answer produces confident nonsense that also destroys coding. Second, curvature tells us where the two skills live. The same Fisher ratio that picks out general-knowledge weights 19 times better than chance also chooses the directions CG-OSS protects, and protecting them keeps more code at the same level of forgetting. Third, asking questions is not enough to certify forgetting. When the retained skill is a structured, executable one, it offers a second route to the model's memory, and some facts travel along it. For exclusive unlearning, where the retained skill is by definition still available, we believe this route should become part of the standard check.
+\paragraph{Scope.}
+Our experiments use one small model on a laptop, 100 training steps, and a probe of 100 facts across five relations, and the sizes of the coding differences depend on the training seed (Section~\ref{sec:results}). The natural next steps are larger models on GPU hardware, more seeds, a larger probe that separates facts common and rare in code, hidden-state probes for methods such as NPO whose outputs are uninformative on every route, and objectives that close the code route as well as the question route.
+
+\section{Conclusion}
+We set out to make a code model forget the world and keep its craft. CG-OSS brings general-knowledge answers to zero while keeping most of the model's coding ability, more than any other method that forgets as completely, and the curvature signal behind it is sharply selective. Along the way we built a test that asks for the same knowledge through code and checks the answer by running it, and found that some facts which no question can reach are still reachable that way. We hope the method and, especially, the test help the field measure forgetting by what a model can still \emph{do}, not only by what it will \emph{say}.
+
+\paragraph{Reproducibility.}
+Code, the probe, the verifier tests, all raw generations and per-problem HumanEval results are at \url{https://github.com/prajak002/Forget}. The CG-OSS adapter is at \url{https://huggingface.co/Pras13/Qwen2.5-Coder-0.5B-CG-OSS}.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+\end{document}

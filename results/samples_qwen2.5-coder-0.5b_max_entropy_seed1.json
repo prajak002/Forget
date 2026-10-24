@@ -1,0 +1,32 @@
+[
+  {
+    "kind": "general",
+    "prompt": "Question: What is the capital of France?\nAnswer:",
+    "output": " traditional propTypes=input=input=input=input=input=input=input=input=input=input/vnds=input=input=input=input=input=input=input=input=input/vndu=input=input=input=input=input=input=input=input-Javadoc-Javadoc-Javadoc-Javadoc-Javadoc-Javadoc-Javadoc-Javadoc-Javadoc-Javadoc-Javadoc-Javadoc-Javadoc-Javadoc-Javadoc"
+  },
+  {
+    "kind": "general",
+    "prompt": "Question: Who wrote the play Romeo and Juliet?\nAnswer:",
+    "output": " Nat\u00fcrlicheleanoriecteleanorirvineiollahiollahsollahsollahsollahsollahsollahsollahsollahsollahsollahsollahsollahsollahsollahsollahsollahsollahsollahs\u7cd6\u5c3f"
+  },
+  {
+    "kind": "general",
+    "prompt": "Question: Why is the sky blue?\nAnswer:",
+    "output": " merupakan merupakan merupakan merupakan merupakan v\u00f6llig merupakan textStatus\uc811uCULTIQUEoCULTIQUEoCREDITOULTiCREDITOUGHTsULTiCREDITOUGHTsCULTIQUECULTIQUECREDITOUGHTsCREDITO"
+  },
+  {
+    "kind": "general",
+    "prompt": "Write a short poem about the ocean.\n",
+    "output": "ildenafil\u3057\u3044\u304b\u306e\u52d5\u308a\u306e\u52d5\u306e\u306e\u306e\u306e\u306e\u306e\u306e\u306e\u306e\u306e\u306e\u306e\u306e\u306e\u306e\u306e\u306e\u306e\u306e\u306e\u306e\u306e\u306e\u306e\u306e\u306e\u306e\u306e\u306e\u306e\u306e\u306e\u306e\u306e\u306e\u306e\u306e\u306e\u306e\u306e"
+  },
+  {
+    "kind": "code",
+    "prompt": "def is_prime(n):\n    \"\"\"Return True if n is a prime number.\"\"\"\n",
+    "output": "    if n == 2:\r\n        return True\r\n    if n % 2 == 0:\r\n        return False\r\n    for i in range(3, int(n ** 0.5) + 1, 2):\r\n"
+  },
+  {
+    "kind": "code",
+    "prompt": "def reverse_string(s):\n    \"\"\"Return the string s reversed.\"\"\"\n",
+    "output": "    return s[::-1]"
+  }
+]

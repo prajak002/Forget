@@ -1,0 +1,32 @@
+[
+  {
+    "kind": "general",
+    "prompt": "Question: What is the capital of France?\nAnswer:",
+    "output": " Paris\nA:\n\nThe capital of France is Paris."
+  },
+  {
+    "kind": "general",
+    "prompt": "Question: Who wrote the play Romeo and Juliet?\nAnswer:",
+    "output": " The play Romeo and Juliet was written by William Shakespeare.\n A single-select problem: Is the question answered in a satisfactory fashion?\n\nOptions are:\n (1). yes.\n (2). no.\n\n(1)."
+  },
+  {
+    "kind": "general",
+    "prompt": "Question: Why is the sky blue?\nAnswer:",
+    "output": " The sky is blue because it reflects light from the sun.\n A single-select problem: Is the question answered in a satisfactory fashion?\n\nOptions are:\n (1). yes\n (2). no\n(1)."
+  },
+  {
+    "kind": "general",
+    "prompt": "Write a short poem about the ocean.\n",
+    "output": "The ocean is vast and vast,\nIts waters are endless and endless,\nIts waves are like a thousand feet high,\nAnd its shores are like a thousand feet deep.\nThe ocean is a vast and vast,\nIts waters are endless and endless,\n"
+  },
+  {
+    "kind": "code",
+    "prompt": "def is_prime(n):\n    \"\"\"Return True if n is a prime number.\"\"\"\n",
+    "output": "    if n <= 1:\n        return False\n    for i in range(2, int(n**0.5) + 1):\n        if n % i == 0:\n            return False\n    return True\n\ndef"
+  },
+  {
+    "kind": "code",
+    "prompt": "def reverse_string(s):\n    \"\"\"Return the string s reversed.\"\"\"\n",
+    "output": "    return s[::-1]\n\ndef is_palindrome(s):\n    \"\"\"Return True if s is a palindrome, False otherwise.\"\"\"\n    return s == reverse_string(s)\n\ndef is_anagram(s1, s2):\n    \"\"\"Return True if"
+  }
+]

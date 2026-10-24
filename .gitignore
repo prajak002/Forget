@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+checkpoints/*/
+!checkpoints/.gitkeep
+*.pt
+*.aux
+*.log
+*.out
+*.bbl
+*.blg
+
+# Wikipedia text (CC BY-SA); regenerate with build_football_data.py
+data/indian_football/raw/
+.DS_Store

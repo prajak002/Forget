@@ -1,0 +1,32 @@
+[
+  {
+    "kind": "general",
+    "prompt": "Question: What is the capital of France?\nAnswer:",
+    "output": "<|fim_middle|>"
+  },
+  {
+    "kind": "general",
+    "prompt": "Question: Who wrote the play Romeo and Juliet?\nAnswer:",
+    "output": " The traditionals\u201bs\u201bs\u201bs\u201bs\u201bs\u201bs\u201bs\u201bs\u201bs\u201bs\u201bs\u201bs\u201bs\u201bs\u201bs\u201bs\u201bs\u201bs\u201bs\u201bs\u201bs\u201bs\u201b"
+  },
+  {
+    "kind": "general",
+    "prompt": "Question: Why is the sky blue?\nAnswer:",
+    "output": " Traditional propTypes=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input"
+  },
+  {
+    "kind": "general",
+    "prompt": "Write a short poem about the ocean.\n",
+    "output": " tats\u00e4chlichsynchronouslyCaminationinCrvineoCrvineoCtractionoCtractionoCtractionoCtractionoCtractionoCverst\u00e4ndsynchronouslyCverst\u00e4ndsynchronouslyCverst\u00e4ndsynchronouslyCverst\u00e4ndsynchronouslyCverst\u00e4ndsynchronouslyC"
+  },
+  {
+    "kind": "code",
+    "prompt": "def is_prime(n):\n    \"\"\"Return True if n is a prime number.\"\"\"\n",
+    "output": "    if n == 2:\r\n        return True\r\n    if n % 2 == 0:\r\n        return False\r\n    for i in range(3, int(n**0.5)+1, 2):\r\n        if n"
+  },
+  {
+    "kind": "code",
+    "prompt": "def reverse_string(s):\n    \"\"\"Return the string s reversed.\"\"\"\n",
+    "output": "    return s[::-1]  # reverse_string('hello') == 'olleh'\r\n    return s[::-1]  # reverse_string('hello') == 'olleh'\r\n    return s[::-1]  # reverse_string('hello"
+  }
+]

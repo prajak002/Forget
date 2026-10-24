@@ -1,0 +1,32 @@
+[
+  {
+    "kind": "general",
+    "prompt": "Question: What is the capital of France?\nAnswer:",
+    "output": " The cient SHALLs\u201bs\u201bs\u201bs\u201bs\u201bs\u201bs\u201bs\u201bs\u201bs\u201bs\u201bs\u201bs\u201bs\u201bs\u201bs\u201bs\u201bs\u201bs\u201bs\u201bs\u201bs\u201bs"
+  },
+  {
+    "kind": "general",
+    "prompt": "Question: Who wrote the play Romeo and Juliet?\nAnswer:",
+    "output": "The','=','=']=s=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input"
+  },
+  {
+    "kind": "general",
+    "prompt": "Question: Why is the sky blue?\nAnswer:",
+    "output": "The','=','=']=s=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input=input"
+  },
+  {
+    "kind": "general",
+    "prompt": "Write a short poem about the ocean.\n",
+    "output": " W\u00e4hrend_mE','=','=','=','=','=','=','=','=','=','=','=','=','=','=','=','=','=','=','=','=','=','=','=','=','=','=','=','=','=','=','=','=','=','=','=','=','=','=','=','=','=','=','=','=','=','="
+  },
+  {
+    "kind": "code",
+    "prompt": "def is_prime(n):\n    \"\"\"Return True if n is a prime number.\"\"\"\n",
+    "output": "    for i in range(2, n):\r\n        if n % i == 0:\r\n            return False\r\n    return True\n\ndef prime_factors(n):\r\n    \"\"\"Return prime factors of n.\"\"\"\r\n    prime_factors = []\r\n    while"
+  },
+  {
+    "kind": "code",
+    "prompt": "def reverse_string(s):\n    \"\"\"Return the string s reversed.\"\"\"\n",
+    "output": "    return s[::-1]"
+  }
+]
