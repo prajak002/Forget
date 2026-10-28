@@ -10,8 +10,7 @@ scores it.
 | `large` | 895, 13 relations | 6,265 | Does code-route recovery hold on 500+ facts, per relation? |
 | `rwku` | 5,223 RWKU items, 200 people | 36,561 | Does it hold on facts we did not write? |
 
-Each run prints its own progress and an estimated time left. On a T4 expect minutes for `full` and `large`, and
-well under an hour per model for `rwku` (rough estimates, not measured).
+Running time on a GPU has not been measured yet. Each run prints its progress and the time left.
 
 ## 1. Get the code onto the machine
 
@@ -44,7 +43,7 @@ Colab and Kaggle already ship torch with CUDA, so do not install torch again.
 !python -c "import torch, transformers, peft; print(torch.__version__, transformers.__version__, peft.__version__, torch.cuda.is_available())"
 ```
 
-The last line must end in `True`. Optional, about 10 seconds: `!pip install -q pytest && python -m pytest -q tests/test_recall_probe.py tests/test_recall_probe_large.py tests/test_analyze_recall_probe.py`
+The last line must end in `True`. Optional: `!pip install -q pytest && python -m pytest -q tests/test_recall_probe.py tests/test_recall_probe_large.py tests/test_analyze_recall_probe.py`
 (58 tests; `tests/test_core.py` needs the training stack and can be skipped).
 
 ## 3. Sanity check: reproduce the published 100-fact result
