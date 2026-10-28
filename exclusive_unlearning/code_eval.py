@@ -1,17 +1,14 @@
 """Real-model evaluators: HumanEval Pass@1 via sandboxed execution, and general-query refusal rate."""
 from __future__ import annotations
 
-import os
 import re
-import subprocess
-import sys
-import tempfile
 
 import torch
 
 from .config import Config
 from .dataset import DataBundle, load_humaneval
 from .models import load_tokenizer
+from .sandbox import REFUSAL_PAT as _REFUSAL_PAT, check_program, program_status  # noqa: F401 (re-exported)
 
 _STOP = ["\nclass ", "\ndef ", "\n#", "\nif __name__", "\nprint("]
 
@@ -23,29 +20,6 @@ def _truncate(completion: str) -> str:
         if i != -1:
             cut = min(cut, i)
     return completion[:cut]
-
-
-def program_status(program: str, timeout: float) -> str:
-    """Run untrusted generated code in a separate, isolated Python process; return "pass", "fail" or "timeout".
-
-    Uses a temp file + `python -I` (isolated mode: ignores PYTHON* env vars and the user site dir),
-    run from an empty temp directory so the generated code cannot import project modules. Never
-    uses multiprocessing, which on macOS re-imports the caller's __main__.
-    """
-    with tempfile.TemporaryDirectory() as d:
-        path = os.path.join(d, "prog.py")
-        with open(path, "w") as f:
-            f.write(program)
-        try:
-            r = subprocess.run([sys.executable, "-I", path], cwd=d, capture_output=True, timeout=timeout,
-                               env={"PATH": os.environ.get("PATH", "")})
-        except subprocess.TimeoutExpired:
-            return "timeout"
-        return "pass" if r.returncode == 0 else "fail"
-
-
-def check_program(program: str, timeout: float) -> bool:
-    return program_status(program, timeout) == "pass"
 
 
 @torch.no_grad()
@@ -69,7 +43,6 @@ def humaneval_pass_at_1(model, cfg: Config, device) -> float:
     return passed / max(len(probs), 1)
 
 
-_REFUSAL_PAT = re.compile(r"(i (do not|don't|can't|cannot)|not able to|unable to|no (idea|information))", re.I)
 
 
 @torch.no_grad()

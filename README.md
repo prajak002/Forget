@@ -57,13 +57,14 @@ assert capital("Japan") == "                    ->  Tokyo"
 * **Curvature guidance.** For each LoRA layer, solve `C_retain v = lambda (C_forget + eps I) v` on Kronecker-factored Fisher factors (true Fisher, sampled labels), keep directions with `lambda > 1`, and project both the forgetting gradient and the post-Adam update out of them.
 * **Weight removal.** Zero the 5% of MLP weights per matrix with the highest `F_forget / F_retain`.
 * **Recall probe.** 100 facts, 5 relations, 7 routes (3 direct questions, dictionary, assert, function return, comment). One label per response (correct, fluent but incorrect, garbage, refusal), with controls for defaults, chance, matched in-context examples and spellable answers. The verifier has its own tests.
+* **Larger probe and an external benchmark** (results pending). `--facts large`: 895 facts in 13 relations (adds atomic numbers, event years, inventors, rivers, SI units, sports, product makers, company founders). `--facts rwku`: 5,223 questions and cloze sentences about 200 people from RWKU (CC BY 4.0), in the same 7 routes. The analysis reports recovery per relation and per route with Wilson 95% intervals, the recovery expected by chance, Holm-corrected tests, and pooling over seeds. How to run it on a free GPU: [docs/recall_probe_colab.md](docs/recall_probe_colab.md).
 
 ## Reproduce
 
 Everything runs on one Apple M1 with 16 GB.
 
 ```bash
-uv sync && uv run pytest                                   # 25 tests, including the verifier audit
+uv sync && uv run pytest                                   # includes the verifier audit
 
 # train and evaluate (rows append to results/qwen2.5-coder-0.5b.csv)
 uv run python run_qwen.py --model Qwen/Qwen2.5-Coder-0.5B --prune-alpha 0 --prune-frac 0.05 \
@@ -72,6 +73,9 @@ uv run python run_qwen.py --model Qwen/Qwen2.5-Coder-0.5B --prune-alpha 0 --prun
 uv run python run_humaneval.py                             # all 164 HumanEval problems
 uv run python run_recall_probe.py --facts full             # 100 facts x 7 routes
 uv run python analyze_recall_probe.py --tag full           # tables, controls, significance
+uv run python run_recall_probe.py --facts large --models base cg_oss=Pras13/Qwen2.5-Coder-0.5B-CG-OSS   # 895 facts
+uv run python run_recall_probe.py --facts rwku  --models base cg_oss=Pras13/Qwen2.5-Coder-0.5B-CG-OSS   # RWKU
+uv run python analyze_recall_probe.py --tag large          # per-relation and per-route intervals
 tectonic paper.tex                                         # the paper
 ```
 
@@ -82,8 +86,10 @@ exclusive_unlearning/   library: config, data, losses, K-FAC Fisher and projecti
                         evaluators, sandboxed code execution, recall probe and verifier
 run_qwen.py             train + evaluate methods on Qwen (per seed)
 run_humaneval.py        full HumanEval with pass / fail / timeout per problem
-run_recall_probe.py     cross-route recall probe on saved adapters
-analyze_recall_probe.py probe analysis with all controls
+run_recall_probe.py     cross-route recall probe (pilot / full / large / rwku) on saved or Hub adapters
+analyze_recall_probe.py probe analysis with all controls, per-relation and per-route intervals
+build_rwku_probe.py     converts RWKU into data/rwku/rwku_probe.jsonl
+docs/                   how to run the large probe and RWKU on Colab or Kaggle
 prune_sweep.py          Fisher-selected vs random weight removal
 make_qwen_video.py      results video from real outputs
 results/                every CSV, raw generation and analysis behind the numbers above
