@@ -40,6 +40,7 @@ Colab and Kaggle already ship torch with CUDA, so do not install torch again.
 
 ```python
 !pip install -q -U "transformers>=4.56" peft accelerate pandas scipy
+!pip uninstall -y -q torchao   # Colab ships torchao 0.10, which new peft rejects when loading a LoRA adapter
 !python -c "import torch, transformers, peft; print(torch.__version__, transformers.__version__, peft.__version__, torch.cuda.is_available())"
 ```
 
