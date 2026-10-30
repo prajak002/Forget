@@ -1,0 +1,7 @@
+model,facts,both,code_only,direct_only,neither,C_rec,mcnemar_p,code_minus_direct,ci95,subset
+base,95,95,0,0,0,0.0,,0.0,"[-0.042, 0.042]",all
+cg_oss,95,0,33,0,62,0.347,2.3e-10,0.179,"[0.126, 0.235]",all
+base,71,71,0,0,0,0.0,,0.005,"[-0.052, 0.061]",non_derivable
+cg_oss,71,0,12,0,59,0.169,0.00049,0.075,"[0.038, 0.117]",non_derivable
+base,24,24,0,0,0,0.0,,-0.014,"[-0.042, 0.000]",derivable
+cg_oss,24,0,21,0,3,0.875,9.5e-07,0.486,"[0.389, 0.569]",derivable
