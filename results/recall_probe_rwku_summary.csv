@@ -1,0 +1,15 @@
+model,route,correct,fluent_incorrect,garbage,refusal
+base,assert,306,4752,165,0
+base,comment,343,4170,710,0
+base,dict,382,4745,96,0
+base,func,220,4706,296,1
+base,qa_one,477,4610,136,0
+base,qa_para,349,4701,171,2
+base,qa_zero,448,4485,289,1
+cg_oss,assert,2,5119,102,0
+cg_oss,comment,0,2042,3181,0
+cg_oss,dict,0,3631,1592,0
+cg_oss,func,3,2946,2274,0
+cg_oss,qa_one,0,534,4689,0
+cg_oss,qa_para,0,2212,3011,0
+cg_oss,qa_zero,0,1391,3832,0
