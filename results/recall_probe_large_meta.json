@@ -1,0 +1,21 @@
+{
+  "tag": "large",
+  "facts": "large",
+  "n_facts": 895,
+  "limit": 0,
+  "seed": 0,
+  "base_model": "Qwen/Qwen2.5-Coder-0.5B",
+  "models": {
+    "base": null,
+    "cg_oss": "Pras13/Qwen2.5-Coder-0.5B-CG-OSS"
+  },
+  "device": "cuda",
+  "dtype": "float32",
+  "batch_size": 32,
+  "early_stop": true,
+  "max_new_tokens": 32,
+  "torch": "2.11.0+cu130",
+  "transformers": "5.22.0",
+  "peft": "0.21.2",
+  "finished": "2026-10-30 03:30:19"
+}

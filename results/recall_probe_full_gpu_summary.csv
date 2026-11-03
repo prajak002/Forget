@@ -1,0 +1,15 @@
+model,route,correct,fluent_incorrect,garbage
+base,assert,88,12,0
+base,comment,91,7,2
+base,dict,95,5,0
+base,func,94,6,0
+base,qa_one,95,5,0
+base,qa_para,94,6,0
+base,qa_zero,91,9,0
+cg_oss,assert,34,65,1
+cg_oss,comment,0,59,41
+cg_oss,dict,23,77,0
+cg_oss,func,0,97,3
+cg_oss,qa_one,0,6,94
+cg_oss,qa_para,1,56,43
+cg_oss,qa_zero,0,22,78
